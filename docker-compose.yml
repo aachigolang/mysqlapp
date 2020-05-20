@@ -1,0 +1,31 @@
+version: '3'
+services:
+  mysql:
+    build: ./db/mysql
+    container_name: mysql
+    restart: always
+    env_file:
+      - ./db/mysql/.env
+    volumes:
+      - ./db/mysql/initdb.d:/docker-entrypoint-initdb.d
+      - ./db/mysql/mount:/var/lib/mysql
+    ports:
+      - 3306:3306
+  prometheus:
+    build: ./metrics/prometheus
+    restart: always
+    container_name: prometheus
+    ports:
+      - 9090:9090
+  grafana:
+    build: ./metrics/grafana
+    ports:
+      - 3000:3000
+    user: "0"
+    env_file:
+      - ./metrics/grafana/.env
+    links:
+      - prometheus
+    volumes:
+      - ./metrics/grafana/mount:/var/lib/grafana
+      - ./metrics/grafana/dashboards:/var/lib/grafana/dashboards    
